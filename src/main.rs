@@ -1,3 +1,7 @@
+mod application;
+mod tui_app;
+
 fn main() {
-    println!("Hello, world!");
+    let res = tui_app::TuiApp::build().unwrap().run();
+    println!("Result: {:?}", res);
 }
