@@ -3,18 +3,15 @@ use std::{
     time::Duration,
 };
 
-use ratatui::{
-    self,
-    prelude::{Constraint, CrosstermBackend, Layout},
-    widgets::{Block, Borders, Paragraph},
-    Terminal,
-};
+use ratatui::{self, prelude::CrosstermBackend, Terminal};
 
 use crossterm::{
     event::{self, EnableMouseCapture, Event, KeyCode},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
+
+use crate::{application::Application, ui::widgets::Component};
 
 pub struct TuiApp {
     terminal: Terminal<CrosstermBackend<Stdout>>,
@@ -43,25 +40,17 @@ impl TuiApp {
 
     pub fn run(mut self) -> io::Result<()> {
         self.setup_terminal()?;
+        let mut application = Application::new();
         loop {
             self.terminal.draw(|frame| {
-                let chunks = Layout::default()
-                    .direction(ratatui::prelude::Direction::Vertical)
-                    .constraints([Constraint::Percentage(10), Constraint::Percentage(90)].as_ref())
-                    .split(frame.size());
-
-                let search_block = Block::default().title("Search").borders(Borders::ALL);
-                frame.render_widget(search_block, chunks[0]);
-
-                let content_block = Block::default().title("Content").borders(Borders::ALL);
-                frame.render_widget(content_block, chunks[1]);
+                application.render(frame, frame.size());
             })?;
-
             if event::poll(Duration::from_millis(250))? {
                 if let Event::Key(key) = event::read()? {
                     if KeyCode::Char('q') == key.code {
                         break;
                     }
+                    application.on_event(&key);
                 }
             }
         }
