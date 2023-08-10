@@ -6,11 +6,12 @@ pub struct TableController {
 }
 
 impl TableController {
-    pub fn new() -> Self {
+    pub fn new(init_index: usize) -> Self {
         Self {
-            state: TableState::default(),
+            state: TableState::default().with_selected(Some(init_index)),
         }
     }
+
     pub fn state(&mut self) -> &mut TableState {
         &mut self.state
     }
