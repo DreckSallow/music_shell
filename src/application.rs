@@ -1,10 +1,13 @@
 use ratatui::{
-    prelude::{Constraint, Direction, Layout},
+    prelude::{Constraint, Direction, Layout, Rect},
     widgets::{Block, Borders},
 };
 
+use crossterm::event::KeyEvent;
+
 use crate::{
     sections::{library::PlaylistLibrary, playlist::Playlist},
+    ui::widgets::Component,
     FrameType,
 };
 
@@ -20,11 +23,14 @@ impl<'a> Application<'a> {
             playlist_section: Playlist::new(&[]),
         }
     }
-    pub fn render(&mut self, frame: &mut FrameType) {
+}
+
+impl<'a> Component for Application<'a> {
+    fn render(&mut self, frame: &mut FrameType, area: Rect) {
         let chunks = Layout::default()
             .direction(Direction::Vertical)
             .constraints([Constraint::Percentage(80), Constraint::Percentage(20)].as_ref())
-            .split(frame.size());
+            .split(area);
 
         let content_chunks = Layout::default()
             .direction(Direction::Horizontal)
@@ -36,5 +42,9 @@ impl<'a> Application<'a> {
 
         let content_block = Block::default().title("Player").borders(Borders::ALL);
         frame.render_widget(content_block, chunks[1]);
+    }
+
+    fn on_event(&mut self, event: &KeyEvent) {
+        self.playlist_section.on_event(event);
     }
 }
