@@ -1,8 +1,11 @@
+use std::{
+    fs::{self, OpenOptions},
+    io::Write,
+};
+
 use ratatui::widgets::TableState;
 
 use crate::ui::controllers::table::TableController;
-
-use super::Component;
 
 type TableVec<'a> = Vec<Vec<&'a str>>;
 
@@ -19,22 +22,17 @@ impl<'a> Table<'a> {
         Self {
             items: items.to_vec(),
             headers: headers.to_vec(),
-            controller: TableController::default(),
+            controller: TableController::new(0),
         }
     }
     pub fn state(&mut self) -> &mut TableState {
-        self.state()
+        self.controller.state()
     }
     pub fn next(&mut self) {
-        self.controller.next(self.items.len())
+        self.controller.next(self.items.len());
     }
 
     pub fn previous(&mut self) {
         self.controller.previous(self.items.len())
     }
-}
-
-impl<'a> Component for Table<'a> {
-    fn render(&mut self, frame: crate::FrameType) {}
-    fn on_event(&mut self, event: usize) {}
 }
