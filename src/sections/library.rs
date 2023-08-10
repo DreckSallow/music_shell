@@ -33,7 +33,6 @@ impl<'a> PlaylistLibrary<'a> {
 
     pub fn render(&self, frame: &mut FrameType, area: Rect) {
         let section = Block::default().title("Playlist").borders(Borders::ALL);
-        // let size=sectio
         frame.render_widget(section, area);
     }
 }
