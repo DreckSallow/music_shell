@@ -1,8 +1,3 @@
-use std::{
-    fs::{self, OpenOptions},
-    io::Write,
-};
-
 use ratatui::widgets::TableState;
 
 use crate::ui::controllers::table::TableController;
@@ -19,10 +14,11 @@ pub struct Table<'a> {
 
 impl<'a> Table<'a> {
     pub fn new(items: &[Vec<&'a str>], headers: &'a TableSlice) -> Self {
+        let index_table = if items.len() > 1 { Some(0) } else { None };
         Self {
             items: items.to_vec(),
             headers: headers.to_vec(),
-            controller: TableController::new(0),
+            controller: TableController::default().with_select(index_table),
         }
     }
     pub fn state(&mut self) -> &mut TableState {
