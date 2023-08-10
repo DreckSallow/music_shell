@@ -6,10 +6,12 @@ pub struct TableController {
 }
 
 impl TableController {
-    pub fn new(init_index: usize) -> Self {
-        Self {
-            state: TableState::default().with_selected(Some(init_index)),
-        }
+    pub fn with_select(mut self, index: Option<usize>) -> Self {
+        self.select(index);
+        self
+    }
+    pub fn select(&mut self, index: Option<usize>) {
+        self.state.select(index)
     }
 
     pub fn state(&mut self) -> &mut TableState {
@@ -17,6 +19,10 @@ impl TableController {
     }
 
     pub fn next(&mut self, len: usize) {
+        if len == 0 {
+            return self.state.select(None);
+        }
+
         let i = match self.state.selected() {
             Some(i) => {
                 if i >= len - 1 {
@@ -31,6 +37,9 @@ impl TableController {
     }
 
     pub fn previous(&mut self, len: usize) {
+        if len == 0 {
+            return self.state.select(None);
+        }
         let i = match self.state.selected() {
             Some(i) => {
                 if i == 0 {
