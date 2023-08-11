@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind};
 use ratatui::{
     prelude::{Constraint, Rect},
@@ -14,12 +12,14 @@ use crate::{
 
 pub struct Playlist<'a> {
     table: Table<'a>,
+    pub is_focus: bool,
 }
 
 impl<'a> Playlist<'a> {
     pub fn new(songs: &[Vec<&'a str>]) -> Self {
         Self {
             table: Table::new(songs, &["Name", "Path", "Ext"]),
+            is_focus: false,
         }
     }
 }
@@ -60,5 +60,8 @@ impl<'a> Component for Playlist<'a> {
             KeyCode::Up => self.table.previous(),
             _ => {}
         }
+    }
+    fn is_focus(&self) -> bool {
+        self.is_focus
     }
 }
