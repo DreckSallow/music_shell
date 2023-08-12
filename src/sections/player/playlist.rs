@@ -1,7 +1,7 @@
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind};
 use ratatui::{
     prelude::{Constraint, Rect},
-    style::Style,
+    style::{Color, Style},
     widgets::{Block, Borders, Cell, Row, Table as TableUi},
 };
 
@@ -26,7 +26,15 @@ impl<'a> Playlist<'a> {
 
 impl<'a> Component for Playlist<'a> {
     fn render(&mut self, frame: &mut FrameType, area: Rect) {
-        let playlist_block = Block::default().title("List").borders(Borders::ALL);
+        let styled = if self.is_focus {
+            Style::default().fg(Color::Cyan)
+        } else {
+            Style::default()
+        };
+        let playlist_block = Block::default()
+            .title("List")
+            .borders(Borders::ALL)
+            .border_style(styled);
 
         let headers_cells = self.table.headers.iter().map(|header| Cell::from(*header));
         let header = Row::new(headers_cells)

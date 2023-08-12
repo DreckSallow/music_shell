@@ -27,7 +27,15 @@ impl<'a> PlaylistLibrary<'a> {
 
 impl<'a> Component for PlaylistLibrary<'a> {
     fn render(&mut self, frame: &mut FrameType, area: Rect) {
-        let section = Block::default().title("Playlist").borders(Borders::ALL);
+        let styled = if self.is_focus {
+            Style::default().fg(Color::Cyan)
+        } else {
+            Style::default()
+        };
+        let section = Block::default()
+            .title("Playlist")
+            .borders(Borders::ALL)
+            .border_style(styled);
         let items: Vec<ListItem> = self
             .list
             .items
