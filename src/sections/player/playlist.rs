@@ -1,9 +1,7 @@
-use std::path::PathBuf;
-
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind};
 use ratatui::{
     prelude::{Constraint, Rect},
-    style::Style,
+    style::{Color, Style},
     widgets::{Block, Borders, Cell, Row, Table as TableUi},
 };
 
@@ -14,19 +12,29 @@ use crate::{
 
 pub struct Playlist<'a> {
     table: Table<'a>,
+    pub is_focus: bool,
 }
 
 impl<'a> Playlist<'a> {
     pub fn new(songs: &[Vec<&'a str>]) -> Self {
         Self {
             table: Table::new(songs, &["Name", "Path", "Ext"]),
+            is_focus: false,
         }
     }
 }
 
 impl<'a> Component for Playlist<'a> {
     fn render(&mut self, frame: &mut FrameType, area: Rect) {
-        let playlist_block = Block::default().title("List").borders(Borders::ALL);
+        let styled = if self.is_focus {
+            Style::default().fg(Color::Cyan)
+        } else {
+            Style::default()
+        };
+        let playlist_block = Block::default()
+            .title("List")
+            .borders(Borders::ALL)
+            .border_style(styled);
 
         let headers_cells = self.table.headers.iter().map(|header| Cell::from(*header));
         let header = Row::new(headers_cells)
@@ -60,5 +68,8 @@ impl<'a> Component for Playlist<'a> {
             KeyCode::Up => self.table.previous(),
             _ => {}
         }
+    }
+    fn is_focus(&self) -> bool {
+        self.is_focus
     }
 }

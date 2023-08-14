@@ -1,27 +1,25 @@
 use ratatui::{
     prelude::{Constraint, Direction, Layout, Rect},
-    widgets::{Block, Borders},
+    style::{Color, Style},
+    text::Line,
+    widgets::{Block, Borders, Tabs},
 };
 
 use crossterm::event::KeyEvent;
 
-use crate::{
-    sections::{library::PlaylistLibrary, playlist::Playlist},
-    ui::widgets::Component,
-    FrameType,
-};
+use crate::{sections::player::PlayerSection, ui::widgets::Component, FrameType};
+
+type TabsType<'a> = Vec<(&'a str, Box<dyn Component>)>;
 
 pub struct Application<'a> {
-    library_section: PlaylistLibrary<'a>,
-    playlist_section: Playlist<'a>,
+    tabs: TabsType<'a>,
+    tab_index: usize,
 }
 
 impl<'a> Application<'a> {
     pub fn new() -> Self {
-        Application {
-            library_section: PlaylistLibrary::new(vec![]),
-            playlist_section: Playlist::new(&[]),
-        }
+        let tabs: TabsType<'a> = vec![("player", Box::new(PlayerSection::new()))];
+        Application { tabs, tab_index: 0 }
     }
 }
 
@@ -29,22 +27,28 @@ impl<'a> Component for Application<'a> {
     fn render(&mut self, frame: &mut FrameType, area: Rect) {
         let chunks = Layout::default()
             .direction(Direction::Vertical)
-            .constraints([Constraint::Percentage(80), Constraint::Percentage(20)].as_ref())
+            .constraints([Constraint::Percentage(10), Constraint::Percentage(90)])
             .split(area);
 
-        let content_chunks = Layout::default()
-            .direction(Direction::Horizontal)
-            .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
-            .split(chunks[0]);
+        let tab_titles = self.tabs.iter().map(|(tab, _)| Line::from(*tab)).collect();
+        let tabs = Tabs::new(tab_titles)
+            .block(Block::default().borders(Borders::ALL).title("tabs"))
+            .select(self.tab_index)
+            .highlight_style(Style::default().bg(Color::Red));
 
-        self.library_section.render(frame, content_chunks[0]);
-        self.playlist_section.render(frame, content_chunks[1]);
+        frame.render_widget(tabs, chunks[0]);
 
-        let content_block = Block::default().title("Player").borders(Borders::ALL);
-        frame.render_widget(content_block, chunks[1]);
+        let tab_info = self.tabs.get_mut(self.tab_index);
+        if let Some((_, section)) = tab_info {
+            section.render(frame, chunks[1]);
+        }
+        // self.player_section.render(frame, area)
     }
 
     fn on_event(&mut self, event: &KeyEvent) {
-        self.playlist_section.on_event(event);
+        let tab_info = self.tabs.get_mut(self.tab_index);
+        if let Some((_, section)) = tab_info {
+            section.on_event(event);
+        } // self.player_section.on_event(event)
     }
 }
